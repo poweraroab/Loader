@@ -102,4 +102,4 @@ do -- environment init
 	wrapperEnv["DEV_MODE"] = false
 end
 
-return import("main/main.lua")(...)
+return import("/main.lua")(...)
