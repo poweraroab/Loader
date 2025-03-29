@@ -33,6 +33,7 @@ local function fetchFile(path, branch)
                 Method = "GET",
                 Headers = {
                     ["Content-Type"] = "text/html; charset=utf-8",
+                    ["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36", -- Adding User-Agent header
                 }
             })
         else {Success = true}
@@ -42,10 +43,13 @@ local function fetchFile(path, branch)
 
     if not result.Success then
         warn("Failed to fetch file from URL:", url)
+    else
+        print("✔️ Successfully fetched the file!")
     end
     
     return (result.Success), srcFile
 end
+
 
 local function import(path, branch)
     -- Directly fetch from the hardcoded path
