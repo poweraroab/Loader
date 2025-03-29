@@ -22,36 +22,18 @@ local function wrapFuncGlobal(func, customFenv)
 end
 
 local function fetchFile(path, branch)
-    branch = branch or "main"
-    local url = string.format("https://raw.githubusercontent.com/%s/%s/%s/%s", repoOwner, repoName, branch, path)
-
-    print("Fetching file:", path, "Branch:", branch)
-    print("Request URL:", url)
-
-    local result
-    if not wrapperEnv.DEV_MODE then
-        result = http_request({
-            Url = url,
-            Method = "GET",
-            Headers = {["Content-Type"] = "text/html; charset=utf-8"}
-        })
-    else
-        result = {Success = true, Body = "DEV_MODE Enabled"}
-    end
-
-    print("HTTP Request Success:", result and result.Success)
-    if not result.Success then
-        warn("⚠️ HTTP request failed for:", url)
-        warn("⚠️ Response body:", result.Body or "nil")
-        return false, nil
-    end
-
-    local srcFile = result.Body
-    print("Received file content (first 200 chars):", srcFile:sub(1, 200))
-
-    return true, srcFile
-end
-
+	branch = (branch or "main")
+	local result = (
+		if not wrapperEnv.DEV_MODE then
+			http_request({
+				Url = string.format("https://raw.githubusercontent.com/%s/%s/%s/%s", repoOwner, repoName, branch, path),
+				Method = "GET",
+				Headers = {
+					["Content-Type"] = "text/html; charset=utf-8",
+				}
+			})
+		else {Success = true}
+	)
 	local srcFile = (if (result.Success) then result.Body else nil)
 	local sepPath = string.split(path, "/")
 	table.insert(sepPath, 1, branch)
