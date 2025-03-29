@@ -65,19 +65,28 @@ local function fetchFile(path, branch)
 end
 
 local function import(path, branch)
-	branch = (branch or "main")
-	local importName = branch .. "|" .. path
-	local loadedFile = loadedImports[importName]
+    branch = branch or "main"
+    local importName = branch .. "|" .. path
 
-	if not loadedFile then
-		local fetchSucc, srcFile = fetchFile(path, branch)
+    if loadedImports[importName] then
+        return loadedImports[importName]
+    end
 
-		if not fetchSucc then return end
-		loadedFile = wrapFuncGlobal(loadstring(srcFile, string.format("@%s/%s", repoName, path)), wrapperEnv)
-		loadedImports[importName] = loadedFile
-	end
-	return loadedFile
+    local fetchSucc, srcFile = fetchFile(path, branch)
+    if not fetchSucc then
+        error("❌ Import failed for: " .. path)
+    end
+
+    local loadedFunc, loadError = loadstring(srcFile, string.format("@%s/%s", repoName, path))
+    if not loadedFunc then
+        error("❌ loadstring() failed: " .. tostring(loadError))
+    end
+
+    local wrappedFunc = wrapFuncGlobal(loadedFunc, wrapperEnv)
+    loadedImports[importName] = wrappedFunc
+    return wrappedFunc
 end
+
 
 --[[local function loadAsset(path, branch) -- DOESN'T WORK
 	branch = (branch or "main")
